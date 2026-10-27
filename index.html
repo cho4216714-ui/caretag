@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CareTag | 세탁 라벨 도우미</title>
+<style>
+:root{--green:#285b4d;--mint:#e9f4ee;--ink:#20312d;--muted:#687772;--line:#dce5df}
+*{box-sizing:border-box}body{margin:0;background:#faf8f1;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+header,main{max-width:760px;margin:auto;padding-left:18px;padding-right:18px}header{padding-top:26px;display:flex;justify-content:space-between;align-items:center}.logo{font-size:23px;font-weight:900}.logo span{color:var(--green)}.tag,.pill{background:var(--mint);color:var(--green);padding:8px 12px;border-radius:99px;font-size:12px;font-weight:800}
+.hero{padding:40px 3px 24px}.eyebrow,.step{font-size:12px;font-weight:850;letter-spacing:1px;color:var(--green)}h1{font-size:clamp(32px,7vw,44px);line-height:1.18;letter-spacing:-1.5px;margin:12px 0}p{line-height:1.7}.hero p,.sub{color:var(--muted)}
+.card{background:white;border:1px solid var(--line);border-radius:22px;padding:23px;margin-bottom:16px;box-shadow:0 8px 30px #20312d08}h2{font-size:19px;margin:8px 0}.sub{font-size:14px;margin:0 0 17px}
+.drop{display:block;text-align:center;padding:24px;border:1.5px dashed #a9c5b7;border-radius:16px;background:#f7fbf8;cursor:pointer}.drop strong{display:block;margin:8px}.drop small{color:var(--muted)}input{display:none}
+button{border:0;border-radius:12px;padding:13px 18px;font-size:15px;font-weight:750;cursor:pointer}.primary{background:var(--green);color:white;width:100%;margin-top:14px}.primary:disabled{opacity:.45}.secondary{background:var(--mint);color:var(--green);margin-top:10px}
+.preview{display:none;text-align:center;margin-top:15px}.preview img{max-width:100%;max-height:300px;border-radius:12px}.status{text-align:center;color:var(--muted);font-size:13px;min-height:20px;margin-top:12px}
+.result{display:none}.prediction{font-size:23px;line-height:1.4;margin:14px 0 7px}.muted{color:var(--muted);font-size:13px}.bar{height:8px;background:#edf1ee;border-radius:99px;overflow:hidden;margin-top:10px}.bar span{display:block;height:100%;background:#55917a;width:0}
+.tips{display:grid;gap:10px;margin-top:18px}.tip{display:flex;gap:12px;padding:13px;background:#f7f9f6;border-radius:13px;line-height:1.5}.icon{font-size:21px}.tip b{display:block;font-size:14px}.tip span{font-size:13px;color:var(--muted)}.notice{font-size:12px;line-height:1.65;color:#697770;background:#f5f6f2;border-radius:12px;padding:13px;margin-top:16px}footer{text-align:center;color:#89958f;font-size:12px;padding:20px}
+</style></head><body>
+<header><div class="logo">Care<span>Tag.</span></div><div class="tag">AI 세탁 라벨 도우미</div></header>
+<main><section class="hero"><div class="eyebrow">CARE FOR YOUR CLOTHES</div><h1>세탁 라벨,<br>이제 쉽게 확인해요.</h1><p>옷 안쪽 세탁 라벨 사진을 올려보세요.<br>AI가 학습한 유형을 예측하고 세탁 시 주의할 점을 안내해요.</p></section>
+<section class="card"><div class="step">STEP 01</div><h2>세탁 라벨 사진 올리기</h2><p class="sub">기호가 잘 보이도록 밝은 곳에서 찍은 사진을 추천해요.</p>
+<label class="drop" for="file"><div style="font-size:28px">＋</div><strong>사진 선택하기</strong><small>JPG, PNG 이미지</small></label><input id="file" type="file" accept="image/*">
+<div class="preview" id="preview"><img id="photo" alt="업로드한 세탁 라벨"><br><button class="secondary" id="change">다른 사진 선택</button></div>
+<button class="primary" id="analyze" disabled>AI로 세탁 유형 확인하기</button><div class="status" id="status"></div></section>
+<section class="card result" id="result"><div class="step">STEP 02 · AI 분석 결과</div><span class="pill">예측 완료</span><div class="prediction" id="predTitle"></div><div class="muted" id="confidence"></div><div class="bar"><span id="bar"></span></div><div class="tips" id="tips"></div>
+<div class="notice">이 결과는 소규모 학습 데이터로 만든 시제품의 예측입니다. 실제 의류의 세탁 표시와 제조사의 안내를 우선 확인하세요. 예측이 틀릴 수 있으니 고온 세탁이나 건조기 사용 전 특히 주의해 주세요.</div></section>
+<section class="card"><div class="step">ABOUT THIS DEMO</div><h2>현재 시제품 안내</h2><p class="sub" style="margin-bottom:0">이 AI는 세탁 기호 하나하나를 따로 읽는 모델이 아니라, 학습한 세 가지 세탁 라벨 조합 중 하나를 예측합니다. 학습 데이터가 적어 정확도가 제한적이며, 학습에 없던 라벨은 올바르게 분류하지 못할 수 있어요.</p></section></main>
+<footer>CareTag · 세탁 전 라벨을 꼭 확인하세요</footer>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.3/dist/teachablemachine-image.min.js"></script>
+<script>
+const MODEL_URL="https://teachablemachine.withgoogle.com/models/vkCO84_gL/";let model=null,previewURL=null;
+const file=document.getElementById('file'),photo=document.getElementById('photo'),analyze=document.getElementById('analyze'),statusEl=document.getElementById('status');
+file.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(!f.type.startsWith('image/')){statusEl.textContent='이미지 파일을 선택해 주세요.';return;}if(previewURL)URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(f);photo.src=previewURL;document.getElementById('preview').style.display='block';analyze.disabled=false;document.getElementById('result').style.display='none';statusEl.textContent='사진이 준비됐어요. AI 분석을 눌러주세요.';});
+document.getElementById('change').onclick=()=>file.click();
+function pretty(s){return s.replace(/^\d+_/,'').replaceAll('_',' ').replaceAll('표백금지','표백 금지').replaceAll('건조기금지','건조기 금지').replaceAll('드라이클리닝금지','드라이클리닝 금지').replaceAll('저온다림질','저온 다림질').replaceAll('용제드라이클리닝','용제 드라이클리닝');}
+function tipsFor(label){const s=label.toLowerCase();const temp=(s.includes('40c')||s.includes('40도'))?'40°C 이하의 물로 세탁하세요.':'30°C 이하의 물로 세탁하세요.';let a=[['🫧','세탁 온도',temp],['🚫','표백','표백 금지 유형으로 예측됐어요. 표백제는 사용하지 마세요.'],['🌬️','건조','건조기 사용 금지 유형으로 예측됐어요. 자연 건조를 권장해요.'],['👔','다림질','저온 다림질 유형으로 예측됐어요. 낮은 온도에서 조심스럽게 다림질하세요.']];if(s.includes('dry_clean_any_solvent')||s.includes('용제드라이클리닝'))a.push(['🧴','드라이클리닝','용제 드라이클리닝 유형으로 예측됐어요. 라벨의 기호를 다시 확인하세요.']);else if(s.includes('dn_dry_clean')||s.includes('드라이클리닝금지'))a.push(['🚫','드라이클리닝','드라이클리닝 금지 유형으로 예측됐어요.']);return a;}
+analyze.onclick=async()=>{analyze.disabled=true;statusEl.textContent='AI 모델을 불러오고 사진을 분석하고 있어요…';try{if(!model)model=await tmImage.load(MODEL_URL+'model.json',MODEL_URL+'metadata.json');const p=await model.predict(photo);p.sort((a,b)=>b.probability-a.probability);const best=p[0],pct=Math.round(best.probability*100);document.getElementById('predTitle').textContent=pretty(best.className);document.getElementById('confidence').textContent='모델 예측 점수: '+pct+'% (정확도 보장 수치가 아니에요)';document.getElementById('bar').style.width=pct+'%';const el=document.getElementById('tips');el.innerHTML='';tipsFor(best.className).forEach(t=>{const d=document.createElement('div');d.className='tip';const i=document.createElement('div');i.className='icon';i.textContent=t[0];const bdy=document.createElement('div');const b=document.createElement('b');b.textContent=t[1];const s=document.createElement('span');s.textContent=t[2];bdy.append(b,s);d.append(i,bdy);el.append(d);});document.getElementById('result').style.display='block';statusEl.textContent='분석이 끝났어요. 결과와 주의사항을 확인하세요.';document.getElementById('result').scrollIntoView({behavior:'smooth'});}catch(e){console.error(e);statusEl.textContent='모델을 불러오지 못했어요. 인터넷 연결과 공유 링크를 확인한 뒤 다시 시도해 주세요.';}finally{analyze.disabled=false;}};
+</script></body></html>
